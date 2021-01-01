@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Type your message and hit ^D when you're done"
+cat|gpg -c -o $1

@@ -1,0 +1,34 @@
+#!/bin/sh
+read -r -d '' HELP <<- EOM
+\nUSAGE: [sudo] ./internal-mount.sh COMMAND PROTOCOL CSV_FILE\n
+  COMMAND                    mount or umount
+  PROTOCOL                   sshfs or cifs
+  CSV_FILE                   path to csv file\n
+The CSV_FILE file should be formatted as:
+remote path,local_path,username,password
+EOM
+[ "$EUID" -ne 0 ] && echo -e "ERROR: Please run as root$HELP" && exit 2
+[ -z $1 ] && echo -e "ERROR: No command specified$HELP" && exit 1 || CMD=$1
+[ -z $2 ] && echo -e "ERROR: No protocol specified$HELP" && exit 1 || PROTOCOL=$2
+[ -z $3 ] && echo -e "ERROR: No CSV file specified$HELP" && exit 1 || CSV_MOUNTFILE=$3
+## ^-setup - v-mounting
+while read line; do
+    user=$(echo $line | cut -d, -f3)
+    password=$(echo $line | cut -d, -f4)
+    cifsPath=$(echo $line | cut -d, -f1)
+    localPath=$(echo $line | cut -d, -f2)
+    sshfsPath=$(echo $line | cut -d, -f5)
+
+    if [ "$CMD" == "mount" ]; then
+        if ! mount | grep -q " $localPath "; then
+            [[ -d $localPath ]] || mkdir -p $localPath
+            chown mj:mj $localPath
+            [ "$PROTOCOL" == "cifs" ] && mount -t cifs -o user=$user,password=$password,uid=$(id -u $SUDO_USER),iocharset=utf8 $cifsPath $localPath
+            [ "$PROTOCOL" == "sshfs" ] && su $SUDO_USER -c "sshfs -o reconnect -o sshfs_sync $sshfsPath $localPath"
+        else
+            echo "$localPath already contains a mount, skipping.."
+        fi
+    fi
+    [ "$CMD" == "umount" ] && umount $localPath
+done <$CSV_MOUNTFILE
+

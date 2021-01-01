@@ -1,0 +1,19 @@
+#!/bin/zsh
+XDG_CONFIG_HOME="$HOME/.config"
+export VIMINIT="source $XDG_CONFIG_HOME/vim/init.vim"
+
+SUBJECT=$1
+
+YEAR=$(date "+%Y")
+MONTH=$(date "+%m")
+
+[ ! -z $2 ] && DLOG_BASE=$2 || DLOG_BASE=$HOME/.local/var/dlog
+DLOG_DIR=$DLOG_BASE/$SUBJECT/$YEAR
+DLOG_FILE=$DLOG_DIR/$MONTH.dlog
+
+mkdir -p $DLOG_DIR
+touch $DLOG_FILE && vim $DLOG_FILE
+
+cd $DLOG_BASE
+git add $DLOG_FILE
+git commit -m "Updated $DLOG_FILE"

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+[ ! -z $1 ] \
+    && xfce4-terminal \
+            --geometry=85x56-1920+0 \
+            --startup-id=dlog \
+            --active-tab -T "dlog $1"       -e "dlog $1" \
+    || xfce4-terminal \
+            --geometry=85x56-1920+0 \
+            --startup-id=dlog \
+            --active-tab -T "dlog daily"    -e "dlog daily" \
+                   --tab -T "dlog xop"      -e "dlog xop" \
+                   --tab -T "dlog anemo"    -e "dlog anemo" \
+                   --tab -T "dlog alive"    -e "dlog alive" \
+                   --tab -T "dlog stic"     -e "dlog stic" \
+                   --tab -T "dlog todo"     -e "dlog todo" \
+

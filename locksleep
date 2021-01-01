@@ -1,0 +1,4 @@
+#!/bin/bash
+lockscreen &
+sleep 3
+systemctl suspend &
